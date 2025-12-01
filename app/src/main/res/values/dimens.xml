@@ -1,0 +1,16 @@
+<resources>
+
+    <dimen name="screen_padding">16dp</dimen>
+
+    <!-- заголовок экрана -->
+    <dimen name="notes_title_size">24sp</dimen>
+
+    <!-- карточка заметки -->
+    <dimen name="note_card_margin">8dp</dimen>
+    <dimen name="note_card_padding">12dp</dimen>
+    <dimen name="note_card_radius">8dp</dimen>
+    <dimen name="note_card_elevation">4dp</dimen>
+
+    <dimen name="note_title_size">18sp</dimen>
+    <dimen name="note_body_size">14sp</dimen>
+</resources>
