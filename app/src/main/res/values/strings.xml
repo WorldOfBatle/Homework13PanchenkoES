@@ -14,6 +14,5 @@
     <string name="menu_edit">Изменить</string>
     <string name="menu_delete">Удалить</string>
 
-    <!-- contentDescription для FAB -->
-    <string name="fab_add_note_cd">Добавить новую заметку</string>
+    <string name="fab_add_note_cd">Добавить заметку</string>
 </resources>

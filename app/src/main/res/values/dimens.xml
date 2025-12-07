@@ -1,25 +1,27 @@
 <resources>
 
-    <dimen name="screen_padding">16dp</dimen>
-
-    <!-- универсальный 0dp, чтобы не писать "0dp" в разметке -->
+    <!-- Универсальный "ноль" для matchConstraint -->
     <dimen name="size_zero">0dp</dimen>
 
-    <!-- заголовок экрана -->
+    <!-- Отступы экрана -->
+    <dimen name="screen_padding">16dp</dimen>
+
+    <!-- Заголовок экрана -->
     <dimen name="notes_title_size">24sp</dimen>
 
-    <!-- карточка заметки -->
+    <!-- Карточка заметки -->
     <dimen name="note_card_margin">8dp</dimen>
     <dimen name="note_card_padding">12dp</dimen>
-    <dimen name="note_card_radius">8dp</dimen>
+    <dimen name="note_card_radius">12dp</dimen>
     <dimen name="note_card_elevation">4dp</dimen>
+    <dimen name="note_card_stroke_width">1dp</dimen>
 
     <dimen name="note_title_size">18sp</dimen>
     <dimen name="note_body_size">14sp</dimen>
     <dimen name="note_body_margin_top">4dp</dimen>
 
-    <!-- отступы для списка и FAB -->
-    <dimen name="recycler_vertical_padding">8dp</dimen>
+    <!-- FAB и отступы списка -->
     <dimen name="fab_margin">16dp</dimen>
+    <dimen name="recycler_bottom_padding">72dp</dimen>
 
 </resources>

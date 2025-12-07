@@ -22,8 +22,7 @@
         android:layout_width="@dimen/size_zero"
         android:layout_height="@dimen/size_zero"
         android:clipToPadding="false"
-        android:paddingTop="@dimen/recycler_vertical_padding"
-        android:paddingBottom="@dimen/recycler_vertical_padding"
+        android:paddingBottom="@dimen/recycler_bottom_padding"
         app:layout_constraintTop_toBottomOf="@id/toolbar"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -34,10 +33,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:contentDescription="@string/fab_add_note_cd"
-        android:layout_margin="@dimen/fab_margin"
-        app:srcCompat="@android:drawable/ic_input_add"
-        app:tint="@android:color/white"
+        android:src="@android:drawable/ic_input_add"
+        app:backgroundTint="?attr/colorPrimary"
+        app:tint="@color/md_theme_light_onPrimary"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_margin="@dimen/fab_margin" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

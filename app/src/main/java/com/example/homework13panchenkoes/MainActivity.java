@@ -6,7 +6,7 @@ import android.os.Bundle;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.core.splashscreen.SplashScreen;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.homework13panchenkoes.databinding.ActivityMainBinding;
@@ -29,9 +29,9 @@ public class MainActivity extends AppCompatActivity implements NoteAdapter.OnNot
     private static final int REQUEST_ADD_NOTE = 1;
     private static final int REQUEST_EDIT_NOTE = 2;
 
-    // Ключи для SharedPreferences
+    // SharedPreferences
     private static final String PREFS_NAME = "notes_prefs";
-    private static final String PREF_KEY_NOTES = "notes_json";
+    private static final String KEY_NOTES_JSON = "notes_json";
 
     private ActivityMainBinding binding;
     private NoteAdapter adapter;
@@ -39,6 +39,9 @@ public class MainActivity extends AppCompatActivity implements NoteAdapter.OnNot
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
+        // Подключаем SplashScreen до super.onCreate()
+        SplashScreen.installSplashScreen(this);
+
         super.onCreate(savedInstanceState);
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
@@ -46,25 +49,16 @@ public class MainActivity extends AppCompatActivity implements NoteAdapter.OnNot
         // Тулбар как ActionBar
         setSupportActionBar(binding.toolbar);
 
-        // Загружаем заметки из SharedPreferences
-        loadNotesFromPrefs();
-
-        // Если пользователь еще ничего не создавал — можно положить две демо-заметки
-        if (notes.isEmpty()) {
-            seedDemoNotesIfEmpty();
-        }
-
         // Настраиваем RecyclerView
         adapter = new NoteAdapter(notes, this);
         binding.recyclerNotes.setLayoutManager(new LinearLayoutManager(this));
-        binding.recyclerNotes.setHasFixedSize(true);
-        binding.recyclerNotes.addItemDecoration(
-                new DividerItemDecoration(this, DividerItemDecoration.VERTICAL)
-        );
         binding.recyclerNotes.setAdapter(adapter);
 
         // FAB для добавления новой заметки
         binding.fabAddNote.setOnClickListener(v -> openAddNoteScreen());
+
+        // Загружаем заметки из SharedPreferences
+        loadNotes();
     }
 
     // Открываем экран создания новой заметки
@@ -88,7 +82,7 @@ public class MainActivity extends AppCompatActivity implements NoteAdapter.OnNot
     public void onDelete(Note note, int position) {
         notes.remove(position);
         adapter.notifyItemRemoved(position);
-        saveNotesToPrefs();
+        saveNotes();
     }
 
     // Получаем результат от EditNoteActivity (добавление / редактирование)
@@ -97,16 +91,19 @@ public class MainActivity extends AppCompatActivity implements NoteAdapter.OnNot
         super.onActivityResult(requestCode, resultCode, data);
 
         if (resultCode != RESULT_OK || data == null) {
-            // пользователь нажал "Назад" или ничего не вернул
-            return;
+            return; // пользователь нажал "назад" или ничего не вернул
         }
 
         String title = data.getStringExtra(EXTRA_NOTE_TITLE);
         String text = data.getStringExtra(EXTRA_NOTE_TEXT);
         int position = data.getIntExtra(EXTRA_NOTE_POSITION, -1);
 
-        if (title == null) title = "";
-        if (text == null) text = "";
+        if (title == null) {
+            title = "";
+        }
+        if (text == null) {
+            text = "";
+        }
 
         if (requestCode == REQUEST_ADD_NOTE) {
             // Добавляем новую заметку
@@ -115,48 +112,49 @@ public class MainActivity extends AppCompatActivity implements NoteAdapter.OnNot
             int newIndex = notes.size() - 1;
             adapter.notifyItemInserted(newIndex);
             binding.recyclerNotes.scrollToPosition(newIndex);
-            saveNotesToPrefs();
-        } else if (requestCode == REQUEST_EDIT_NOTE
-                && position >= 0
-                && position < notes.size()) {
-            // Обновляем существующую заметку
-            Note note = notes.get(position);
-            note.setTitle(title);
-            note.setText(text);
+            saveNotes();
+        } else if (requestCode == REQUEST_EDIT_NOTE && position >= 0 && position < notes.size()) {
+            // Обновляем существующую заметку (создаём новый объект Note)
+            Note updated = new Note(title, text);
+            notes.set(position, updated);
             adapter.notifyItemChanged(position);
-            saveNotesToPrefs();
+            saveNotes();
         }
     }
 
-    // Загружаем список заметок из SharedPreferences (JSON-строка → список Note)
-    private void loadNotesFromPrefs() {
+    // Загрузка заметок из SharedPreferences
+    private void loadNotes() {
         SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        String json = prefs.getString(PREF_KEY_NOTES, null);
+        String json = prefs.getString(KEY_NOTES_JSON, null);
 
         notes.clear();
 
-        if (json == null || json.isEmpty()) {
-            return;
+        if (json != null && !json.isEmpty()) {
+            try {
+                JSONArray array = new JSONArray(json);
+                for (int i = 0; i < array.length(); i++) {
+                    JSONObject obj = array.getJSONObject(i);
+                    String title = obj.optString("title", "");
+                    String text = obj.optString("text", "");
+                    notes.add(new Note(title, text));
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
 
-        try {
-            JSONArray array = new JSONArray(json);
-            for (int i = 0; i < array.length(); i++) {
-                JSONObject obj = array.getJSONObject(i);
-                String title = obj.optString("title", "");
-                String text = obj.optString("text", "");
-                notes.add(new Note(title, text));
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
+        // Если сохранённых заметок нет – пара демонстрационных
+        if (notes.isEmpty()) {
+            notes.add(new Note("Первая заметка", "Это пример заметки для проверки списка."));
+            notes.add(new Note("Идея для проекта", "Сделать своё приложение заметок с синхронизацией."));
         }
+
+        adapter.notifyDataSetChanged();
     }
 
-    // Сохраняем список заметок в SharedPreferences (список Note → JSON-строка)
-    private void saveNotesToPrefs() {
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+    // Сохранение заметок в SharedPreferences в виде JSON
+    private void saveNotes() {
         JSONArray array = new JSONArray();
-
         for (Note note : notes) {
             JSONObject obj = new JSONObject();
             try {
@@ -168,25 +166,9 @@ public class MainActivity extends AppCompatActivity implements NoteAdapter.OnNot
             array.put(obj);
         }
 
+        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
         prefs.edit()
-                .putString(PREF_KEY_NOTES, array.toString())
+                .putString(KEY_NOTES_JSON, array.toString())
                 .apply();
-    }
-
-    // Пара стартовых заметок для первого запуска (POJO Note)
-    private void seedDemoNotesIfEmpty() {
-        if (!notes.isEmpty()) {
-            return;
-        }
-
-        notes.add(new Note("Первая заметка", "Это пример заметки для проверки списка."));
-        notes.add(new Note("Идея для проекта", "Сделать своё приложение заметок с синхронизацией."));
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
-        // На всякий случай сохраняем список при уходе с экрана
-        saveNotesToPrefs();
     }
 }

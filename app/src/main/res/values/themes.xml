@@ -1,9 +1,21 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+
+    <!-- Базовая тема приложения на Material3 -->
     <style name="Base.Theme.Homework13PanchenkoES" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <!-- <item name="colorPrimary">@color/md_theme_light_primary</item> -->
     </style>
 
+    <!-- Основная тема всех экранов -->
     <style name="Theme.Homework13PanchenkoES" parent="Base.Theme.Homework13PanchenkoES" />
+
+    <!-- Тема для SplashScreen (используется только у MainActivity в манифесте) -->
+    <style name="Theme.Homework13PanchenkoES.Splash" parent="Theme.SplashScreen">
+        <!-- Иконка на сплэше -->
+        <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
+        <!-- Цвет фона сплэша -->
+        <item name="windowSplashScreenBackground">@color/black</item>
+        <!-- Тема, в которую переключаемся после сплэша -->
+        <item name="postSplashScreenTheme">@style/Theme.Homework13PanchenkoES</item>
+    </style>
+
 </resources>
