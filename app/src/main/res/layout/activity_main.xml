@@ -6,24 +6,34 @@
     android:layout_height="match_parent"
     android:padding="@dimen/screen_padding">
 
-    <TextView
-        android:id="@+id/textTitle"
-        android:layout_width="0dp"
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbar"
+        android:layout_width="@dimen/size_zero"
         android:layout_height="wrap_content"
-        android:text="@string/notes_title"
-        android:textSize="@dimen/notes_title_size"
-        android:textStyle="bold"
+        android:background="?attr/colorPrimary"
+        android:title="@string/notes_title"
+        android:titleTextColor="@android:color/white"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"/>
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerNotes"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        app:layout_constraintTop_toBottomOf="@id/textTitle"
+        android:layout_width="@dimen/size_zero"
+        android:layout_height="@dimen/size_zero"
+        app:layout_constraintTop_toBottomOf="@id/toolbar"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fabAddNote"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/fab_margin"
+        android:contentDescription="@string/fab_add_note_cd"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"/>
+        app:srcCompat="@android:drawable/ic_input_add" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

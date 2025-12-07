@@ -2,8 +2,8 @@ package com.example.homework13panchenkoes;
 
 public class Note {
 
-    private final String title;
-    private final String text;
+    private String title;
+    private String text;
 
     public Note(String title, String text) {
         this.title = title;
@@ -16,5 +16,13 @@ public class Note {
 
     public String getText() {
         return text;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setText(String text) {
+        this.text = text;
     }
 }

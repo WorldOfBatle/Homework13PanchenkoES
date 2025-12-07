@@ -3,55 +3,94 @@ package com.example.homework13panchenkoes;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.cardview.widget.CardView;
+import androidx.appcompat.widget.PopupMenu;
 import androidx.recyclerview.widget.RecyclerView;
+
+import com.example.homework13panchenkoes.databinding.ItemNoteBinding;
 
 import java.util.List;
 
-// Адаптер связывает список Note с item_note.xml
+// Адаптер для списка заметок на RecyclerView
 public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder> {
 
-    private final List<Note> notes;
-
-    public NoteAdapter(List<Note> notes) {
-        this.notes = notes;
+    public interface OnNoteActionsListener {
+        void onEdit(Note note, int position);
+        void onDelete(Note note, int position);
     }
 
-    // Холдер хранит ссылки на view внутри одной карточки
-    static class NoteViewHolder extends RecyclerView.ViewHolder {
+    private final List<Note> notes;
+    private final OnNoteActionsListener actionsListener;
 
-        final TextView textTitle;
-        final TextView textBody;
-        final CardView cardView;
-
-        public NoteViewHolder(@NonNull View itemView) {
-            super(itemView);
-            cardView = (CardView) itemView;
-            textTitle = itemView.findViewById(R.id.textTitle);
-            textBody = itemView.findViewById(R.id.textBody);
-        }
+    public NoteAdapter(List<Note> notes, OnNoteActionsListener actionsListener) {
+        this.notes = notes;
+        this.actionsListener = actionsListener;
     }
 
     @NonNull
     @Override
     public NoteViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View itemView = LayoutInflater.from(parent.getContext())
-                .inflate(R.layout.item_note, parent, false);
-        return new NoteViewHolder(itemView);
+        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+        ItemNoteBinding binding = ItemNoteBinding.inflate(inflater, parent, false);
+        return new NoteViewHolder(binding);
     }
 
     @Override
     public void onBindViewHolder(@NonNull NoteViewHolder holder, int position) {
         Note note = notes.get(position);
-        holder.textTitle.setText(note.getTitle());
-        holder.textBody.setText(note.getText());
+        holder.bind(note);
     }
 
     @Override
     public int getItemCount() {
         return notes.size();
+    }
+
+    class NoteViewHolder extends RecyclerView.ViewHolder {
+
+        private final ItemNoteBinding binding;
+
+        NoteViewHolder(ItemNoteBinding binding) {
+            super(binding.getRoot());
+            this.binding = binding;
+
+            // Долгое нажатие по карточке → показываем контекстное меню
+            binding.getRoot().setOnLongClickListener(v -> {
+                showContextMenu(v, getAdapterPosition());
+                return true;
+            });
+        }
+
+        void bind(Note note) {
+            binding.textTitle.setText(note.getTitle());
+            binding.textBody.setText(note.getText());
+        }
+
+        private void showContextMenu(View anchor, int position) {
+            if (position == RecyclerView.NO_POSITION) return;
+
+            PopupMenu popup = new PopupMenu(anchor.getContext(), anchor);
+            popup.getMenuInflater().inflate(R.menu.menu_note_context, popup.getMenu());
+
+            popup.setOnMenuItemClickListener(item -> {
+                if (actionsListener == null) return false;
+
+                int id = item.getItemId();
+                Note note = notes.get(position);
+
+                if (id == R.id.action_edit) {
+                    actionsListener.onEdit(note, position);
+                    return true;
+                } else if (id == R.id.action_delete) {
+                    actionsListener.onDelete(note, position);
+                    return true;
+                }
+
+                return false;
+            });
+
+            popup.show();
+        }
     }
 }
