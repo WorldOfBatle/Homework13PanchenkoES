@@ -2,7 +2,7 @@
 
     <dimen name="screen_padding">16dp</dimen>
 
-    <!-- "виртуальный" ноль, чтобы 0dp тоже были в ресурсах -->
+    <!-- универсальный 0dp, чтобы не писать "0dp" в разметке -->
     <dimen name="size_zero">0dp</dimen>
 
     <!-- заголовок экрана -->
@@ -18,7 +18,8 @@
     <dimen name="note_body_size">14sp</dimen>
     <dimen name="note_body_margin_top">4dp</dimen>
 
-    <!-- FAB и кнопка сохранения -->
+    <!-- отступы для списка и FAB -->
+    <dimen name="recycler_vertical_padding">8dp</dimen>
     <dimen name="fab_margin">16dp</dimen>
-    <dimen name="note_edit_button_margin_top">16dp</dimen>
+
 </resources>

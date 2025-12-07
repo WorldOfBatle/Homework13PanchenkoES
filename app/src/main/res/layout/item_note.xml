@@ -23,7 +23,7 @@
             android:textStyle="bold"
             android:textColor="@android:color/black"
             android:maxLines="1"
-            android:ellipsize="end" />
+            android:ellipsize="end"/>
 
         <TextView
             android:id="@+id/textBody"
@@ -33,7 +33,7 @@
             android:textSize="@dimen/note_body_size"
             android:textColor="@android:color/darker_gray"
             android:maxLines="3"
-            android:ellipsize="end" />
+            android:ellipsize="end"/>
 
     </LinearLayout>
 

@@ -21,6 +21,9 @@
         android:id="@+id/recyclerNotes"
         android:layout_width="@dimen/size_zero"
         android:layout_height="@dimen/size_zero"
+        android:clipToPadding="false"
+        android:paddingTop="@dimen/recycler_vertical_padding"
+        android:paddingBottom="@dimen/recycler_vertical_padding"
         app:layout_constraintTop_toBottomOf="@id/toolbar"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -30,10 +33,11 @@
         android:id="@+id/fabAddNote"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/fab_margin"
         android:contentDescription="@string/fab_add_note_cd"
+        android:layout_margin="@dimen/fab_margin"
+        app:srcCompat="@android:drawable/ic_input_add"
+        app:tint="@android:color/white"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:srcCompat="@android:drawable/ic_input_add" />
+        app:layout_constraintEnd_toEndOf="parent" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

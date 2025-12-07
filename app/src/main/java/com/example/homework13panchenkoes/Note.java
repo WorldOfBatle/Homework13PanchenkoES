@@ -1,5 +1,6 @@
 package com.example.homework13panchenkoes;
 
+// Простой POJO-класс для заметки
 public class Note {
 
     private String title;
@@ -14,12 +15,12 @@ public class Note {
         return title;
     }
 
-    public String getText() {
-        return text;
-    }
-
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getText() {
+        return text;
     }
 
     public void setText(String text) {
