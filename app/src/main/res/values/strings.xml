@@ -14,5 +14,15 @@
     <string name="menu_edit">Изменить</string>
     <string name="menu_delete">Удалить</string>
 
+    <!-- ContentDescription (фикс ошибки сборки) -->
     <string name="fab_add_note_cd">Добавить заметку</string>
+
+    <!-- Уведомления -->
+    <string name="notification_channel_name">Заметки</string>
+    <string name="notification_channel_description">Уведомления о действиях с заметками</string>
+
+    <string name="notif_added_title">Заметка добавлена</string>
+    <string name="notif_updated_title">Заметка обновлена</string>
+    <string name="notif_deleted_title">Заметка удалена</string>
+    <string name="notif_empty_title">Без заголовка</string>
 </resources>

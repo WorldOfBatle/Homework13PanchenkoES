@@ -1,17 +1,10 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Базовая ночная тема тоже от Material3 -->
-    <style name="Base.Theme.Homework13PanchenkoES" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- <item name="colorPrimary">@color/md_theme_dark_primary</item> -->
-    </style>
+    <style name="Theme.Homework13PanchenkoES" parent="Theme.Material3.DayNight.NoActionBar" />
 
-    <!-- Основная тема экранов в тёмном режиме -->
-    <style name="Theme.Homework13PanchenkoES" parent="Base.Theme.Homework13PanchenkoES" />
-
-    <!-- Тема сплэша в тёмном режиме -->
     <style name="Theme.Homework13PanchenkoES.Splash" parent="Theme.SplashScreen">
+        <item name="windowSplashScreenBackground">@color/splash_background</item>
         <item name="windowSplashScreenAnimatedIcon">@mipmap/ic_launcher</item>
-        <item name="windowSplashScreenBackground">@color/black</item>
         <item name="postSplashScreenTheme">@style/Theme.Homework13PanchenkoES</item>
     </style>
 

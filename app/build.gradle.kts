@@ -27,6 +27,7 @@ android {
             )
         }
     }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
@@ -40,6 +41,7 @@ dependencies {
     implementation(libs.activity)
     implementation(libs.constraintlayout)
 
+    // SplashScreen (Jetpack)
     implementation("androidx.core:core-splashscreen:1.0.1")
 
     testImplementation(libs.junit)
