@@ -2,7 +2,6 @@ package com.example.homework13panchenkoes;
 
 import android.Manifest;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
@@ -13,15 +12,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.splashscreen.SplashScreen;
+import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
 import com.example.homework13panchenkoes.databinding.ActivityMainBinding;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity implements NoteAdapter.OnNoteActionsListener {
@@ -38,13 +33,9 @@ public class MainActivity extends AppCompatActivity implements NoteAdapter.OnNot
     // Permission для уведомлений (Android 13+)
     private static final int REQUEST_POST_NOTIFICATIONS = 101;
 
-    // SharedPreferences
-    private static final String PREFS_NAME = "notes_prefs";
-    private static final String KEY_NOTES_JSON = "notes_json";
-
     private ActivityMainBinding binding;
     private NoteAdapter adapter;
-    private final List<Note> notes = new ArrayList<>();
+    private NotesViewModel viewModel;
 
     // Отложенное уведомление (если сначала нужно запросить permission)
     private int pendingNotificationId = 0;
@@ -66,16 +57,23 @@ public class MainActivity extends AppCompatActivity implements NoteAdapter.OnNot
         // Тулбар как ActionBar
         setSupportActionBar(binding.toolbar);
 
-        // Настраиваем RecyclerView
-        adapter = new NoteAdapter(notes, this);
+        // RecyclerView + Adapter
+        adapter = new NoteAdapter(this);
         binding.recyclerNotes.setLayoutManager(new LinearLayoutManager(this));
         binding.recyclerNotes.setAdapter(adapter);
 
+        // ViewModel
+        viewModel = new ViewModelProvider(this).get(NotesViewModel.class);
+
+        // Подписываемся на список заметок (LiveData)
+        viewModel.getNotes().observe(this, this::renderNotes);
+
         // FAB для добавления новой заметки
         binding.fabAddNote.setOnClickListener(v -> openAddNoteScreen());
+    }
 
-        // Загружаем заметки из SharedPreferences
-        loadNotes();
+    private void renderNotes(List<Note> notes) {
+        adapter.setNotes(notes);
     }
 
     // Открываем экран создания новой заметки
@@ -87,19 +85,17 @@ public class MainActivity extends AppCompatActivity implements NoteAdapter.OnNot
     @Override
     public void onEdit(Note note, int position) {
         Intent intent = new Intent(this, EditNoteActivity.class);
-        intent.putExtra(EXTRA_NOTE_TITLE, note.getTitle());
-        intent.putExtra(EXTRA_NOTE_TEXT, note.getText());
+        intent.putExtra(EXTRA_NOTE_TITLE, note != null ? note.getTitle() : "");
+        intent.putExtra(EXTRA_NOTE_TEXT, note != null ? note.getText() : "");
         intent.putExtra(EXTRA_NOTE_POSITION, position);
         startActivityForResult(intent, REQUEST_EDIT_NOTE);
     }
 
     @Override
     public void onDelete(Note note, int position) {
-        notes.remove(position);
-        adapter.notifyItemRemoved(position);
-        saveNotes();
+        Note removed = viewModel.deleteNote(position);
 
-        String body = safeTitleForNotification(note != null ? note.getTitle() : "");
+        String body = safeTitleForNotification(removed != null ? removed.getTitle() : "");
         notifyWithPermission(
                 getString(R.string.notif_deleted_title),
                 body
@@ -110,9 +106,7 @@ public class MainActivity extends AppCompatActivity implements NoteAdapter.OnNot
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (resultCode != RESULT_OK || data == null) {
-            return;
-        }
+        if (resultCode != RESULT_OK || data == null) return;
 
         String title = data.getStringExtra(EXTRA_NOTE_TITLE);
         String text = data.getStringExtra(EXTRA_NOTE_TEXT);
@@ -122,26 +116,19 @@ public class MainActivity extends AppCompatActivity implements NoteAdapter.OnNot
         if (text == null) text = "";
 
         if (requestCode == REQUEST_ADD_NOTE) {
-            Note note = new Note(title, text);
-            notes.add(note);
+            int newIndex = viewModel.addNote(title, text);
 
-            int newIndex = notes.size() - 1;
-            adapter.notifyItemInserted(newIndex);
-            binding.recyclerNotes.scrollToPosition(newIndex);
-
-            saveNotes();
+            // Прокрутка к добавленной заметке
+            int finalIndex = newIndex;
+            binding.recyclerNotes.post(() -> binding.recyclerNotes.scrollToPosition(finalIndex));
 
             notifyWithPermission(
                     getString(R.string.notif_added_title),
                     safeTitleForNotification(title)
             );
 
-        } else if (requestCode == REQUEST_EDIT_NOTE && position >= 0 && position < notes.size()) {
-            Note updated = new Note(title, text);
-            notes.set(position, updated);
-            adapter.notifyItemChanged(position);
-
-            saveNotes();
+        } else if (requestCode == REQUEST_EDIT_NOTE) {
+            viewModel.updateNote(position, title, text);
 
             notifyWithPermission(
                     getString(R.string.notif_updated_title),
@@ -198,53 +185,5 @@ public class MainActivity extends AppCompatActivity implements NoteAdapter.OnNot
             pendingNotificationTitle = null;
             pendingNotificationText = null;
         }
-    }
-
-    private void loadNotes() {
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        String json = prefs.getString(KEY_NOTES_JSON, null);
-
-        notes.clear();
-
-        if (json != null && !json.isEmpty()) {
-            try {
-                JSONArray array = new JSONArray(json);
-                for (int i = 0; i < array.length(); i++) {
-                    JSONObject obj = array.getJSONObject(i);
-                    String title = obj.optString("title", "");
-                    String text = obj.optString("text", "");
-                    notes.add(new Note(title, text));
-                }
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-        }
-
-        if (notes.isEmpty()) {
-            notes.add(new Note("Первая заметка", "Это пример заметки для проверки списка."));
-            notes.add(new Note("Идея для проекта", "Сделать своё приложение заметок с синхронизацией."));
-        }
-
-        adapter.notifyDataSetChanged();
-    }
-
-    private void saveNotes() {
-        JSONArray array = new JSONArray();
-
-        for (Note note : notes) {
-            JSONObject obj = new JSONObject();
-            try {
-                obj.put("title", note.getTitle());
-                obj.put("text", note.getText());
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            array.put(obj);
-        }
-
-        SharedPreferences prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
-        prefs.edit()
-                .putString(KEY_NOTES_JSON, array.toString())
-                .apply();
     }
 }

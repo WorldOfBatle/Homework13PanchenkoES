@@ -10,6 +10,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.homework13panchenkoes.databinding.ItemNoteBinding;
 
+import java.util.ArrayList;
 import java.util.List;
 
 // Адаптер для списка заметок на RecyclerView
@@ -20,12 +21,19 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
         void onDelete(Note note, int position);
     }
 
-    private final List<Note> notes;
+    private final List<Note> notes = new ArrayList<>();
     private final OnNoteActionsListener actionsListener;
 
-    public NoteAdapter(List<Note> notes, OnNoteActionsListener actionsListener) {
-        this.notes = notes;
+    public NoteAdapter(OnNoteActionsListener actionsListener) {
         this.actionsListener = actionsListener;
+    }
+
+    public void setNotes(List<Note> newNotes) {
+        notes.clear();
+        if (newNotes != null) {
+            notes.addAll(newNotes);
+        }
+        notifyDataSetChanged();
     }
 
     @NonNull
@@ -63,8 +71,8 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
         }
 
         void bind(Note note) {
-            binding.textTitle.setText(note.getTitle());
-            binding.textBody.setText(note.getText());
+            binding.textTitle.setText(note != null ? note.getTitle() : "");
+            binding.textBody.setText(note != null ? note.getText() : "");
         }
 
         private void showContextMenu(View anchor, int position) {
