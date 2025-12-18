@@ -68,12 +68,35 @@ public class MainActivity extends AppCompatActivity implements NoteAdapter.OnNot
         // Подписываемся на список заметок (LiveData)
         viewModel.getNotes().observe(this, this::renderNotes);
 
-        // FAB для добавления новой заметки
-        binding.fabAddNote.setOnClickListener(v -> openAddNoteScreen());
+        // FAB для добавления новой заметки (с анимацией)
+        binding.fabAddNote.setOnClickListener(v -> animateFabAndOpenAdd());
     }
 
     private void renderNotes(List<Note> notes) {
         adapter.setNotes(notes);
+    }
+
+    private void animateFabAndOpenAdd() {
+        // Небольшая показательная анимация
+        binding.fabAddNote.setEnabled(false);
+
+        binding.fabAddNote.animate()
+                .rotation(45f)
+                .scaleX(0.85f)
+                .scaleY(0.85f)
+                .setDuration(120)
+                .withEndAction(() -> binding.fabAddNote.animate()
+                        .rotation(0f)
+                        .scaleX(1f)
+                        .scaleY(1f)
+                        .setDuration(120)
+                        .withEndAction(() -> {
+                            binding.fabAddNote.setEnabled(true);
+                            openAddNoteScreen();
+                        })
+                        .start()
+                )
+                .start();
     }
 
     // Открываем экран создания новой заметки

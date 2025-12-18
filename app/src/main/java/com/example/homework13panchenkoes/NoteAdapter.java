@@ -63,9 +63,24 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
             super(binding.getRoot());
             this.binding = binding;
 
-            // Долгое нажатие по карточке → показываем контекстное меню
+            // Долгое нажатие по карточке → небольшая анимация и контекстное меню
             binding.getRoot().setOnLongClickListener(v -> {
-                showContextMenu(v, getAdapterPosition());
+                int pos = getAdapterPosition();
+                if (pos == RecyclerView.NO_POSITION) return true;
+
+                v.animate()
+                        .scaleX(0.97f)
+                        .scaleY(0.97f)
+                        .setDuration(80)
+                        .withEndAction(() -> v.animate()
+                                .scaleX(1f)
+                                .scaleY(1f)
+                                .setDuration(80)
+                                .withEndAction(() -> showContextMenu(v, pos))
+                                .start()
+                        )
+                        .start();
+
                 return true;
             });
         }

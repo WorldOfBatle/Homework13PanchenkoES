@@ -21,6 +21,9 @@ public class EditNoteActivity extends AppCompatActivity {
         binding = ActivityEditNoteBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
+        // Небольшая анимация появления экрана
+        animateScreenEnter();
+
         // Настраиваем тулбар как ActionBar
         setSupportActionBar(binding.toolbarEdit);
         if (getSupportActionBar() != null) {
@@ -46,8 +49,42 @@ public class EditNoteActivity extends AppCompatActivity {
         // Кнопка «Назад» в тулбаре
         binding.toolbarEdit.setNavigationOnClickListener(v -> finish());
 
-        // Кнопка «Сохранить»
-        binding.btnSave.setOnClickListener(v -> saveNoteAndFinish());
+        // Кнопка «Сохранить» (с анимацией)
+        binding.btnSave.setOnClickListener(v -> animateSaveAndFinish());
+    }
+
+    // Анимация появления: плавно + немного снизу вверх
+    private void animateScreenEnter() {
+        binding.getRoot().setAlpha(0f);
+        binding.getRoot().setTranslationY(dpToPx(18));
+
+        binding.getRoot().animate()
+                .alpha(1f)
+                .translationY(0f)
+                .setDuration(260)
+                .start();
+    }
+
+    // Анимация нажатия на "Сохранить" + лёгкое исчезновение экрана (видно на видео/проверке)
+    private void animateSaveAndFinish() {
+        binding.btnSave.setEnabled(false);
+
+        binding.btnSave.animate()
+                .scaleX(0.96f)
+                .scaleY(0.96f)
+                .setDuration(110)
+                .withEndAction(() -> binding.btnSave.animate()
+                        .scaleX(1f)
+                        .scaleY(1f)
+                        .setDuration(110)
+                        .withEndAction(() -> binding.getRoot().animate()
+                                .alpha(0f)
+                                .translationY(dpToPx(-10))
+                                .setDuration(160)
+                                .withEndAction(this::saveNoteAndFinish)
+                                .start())
+                        .start())
+                .start();
     }
 
     // Собираем данные и возвращаем их в MainActivity
@@ -73,5 +110,9 @@ public class EditNoteActivity extends AppCompatActivity {
 
         setResult(RESULT_OK, data);
         finish();
+    }
+
+    private float dpToPx(float dp) {
+        return dp * getResources().getDisplayMetrics().density;
     }
 }
